@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DataAccessLayer.Entity
+{
+    public class TeamMember
+    {
+        public int TeamId { get; set; }
+        public int UserId { get; set; }
+        public Team Team { get; set; } = null!;
+        public User User { get; set; } = null!;
+    }
+
+}

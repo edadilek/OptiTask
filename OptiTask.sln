@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34902.65
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OptiTask", "OptiTask\OptiTask.csproj", "{2DDEE4B7-B788-4ABF-94F0-32C79899598F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{2B94B9D8-8285-43A5-94B6-6183C1E246BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DDEE4B7-B788-4ABF-94F0-32C79899598F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DDEE4B7-B788-4ABF-94F0-32C79899598F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DDEE4B7-B788-4ABF-94F0-32C79899598F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DDEE4B7-B788-4ABF-94F0-32C79899598F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B94B9D8-8285-43A5-94B6-6183C1E246BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B94B9D8-8285-43A5-94B6-6183C1E246BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B94B9D8-8285-43A5-94B6-6183C1E246BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B94B9D8-8285-43A5-94B6-6183C1E246BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8DECD763-F706-424E-A8C3-CBDFB2AE8EBA}
+	EndGlobalSection
+EndGlobal
