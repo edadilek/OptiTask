@@ -4,6 +4,7 @@ using StackExchange.Redis;
 using OptiTask.Services;
 using DataAccessLayer.Interface;
 using DataAccessLayer.Repository;
+using OptiTask.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
