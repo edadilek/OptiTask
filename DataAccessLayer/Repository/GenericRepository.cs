@@ -46,10 +46,11 @@ namespace DataAccessLayer.Repository
             return result;
         }
 
-        public async Task Update(T entity)
+        public async Task<T> Update(T entity)
         {
             appDbContext.Set<T>().Update(entity);
             await appDbContext.SaveChangesAsync();
+            return entity;
         }
     }
 }
