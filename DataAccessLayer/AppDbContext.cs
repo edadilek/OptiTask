@@ -6,6 +6,10 @@ namespace DataAccessLayer
 {
     public class AppDbContext : DbContext
     {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {
+            
+        }
+
         public DbSet<User> Users { get; set; }
         public DbSet<Tasks> Tasks { get; set; }
         public DbSet<Project> Projects { get; set; }
@@ -13,13 +17,10 @@ namespace DataAccessLayer
         public DbSet<TeamMember> TeamMembers { get; set; }
         public DbSet<TaskAssignment> TaskAssignments { get; set; }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {
-            
-        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("Users");
-            modelBuilder.Entity<Entity.Tasks>().ToTable("Tasks");
+            modelBuilder.Entity<Tasks>().ToTable("Tasks");
             modelBuilder.Entity<Team>().ToTable("Teams");
             modelBuilder.Entity<TeamMember>().ToTable("TeamMembers");
             modelBuilder.Entity<Project>().ToTable("Projects");
