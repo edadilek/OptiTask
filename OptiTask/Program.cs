@@ -30,16 +30,24 @@ builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
 
 
 // **2. Redis Baðlantýsýný Yapýlandýrýn**
-//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-//{
-//    var configuration = builder.Configuration.GetConnectionString("RedisConnection");
-//    return ConnectionMultiplexer.Connect(configuration);
-//});
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
+    try
+    {
+        return ConnectionMultiplexer.Connect(redisConnection);
+    }
+    catch (Exception ex)
+    {
+        throw new InvalidOperationException($"Redis baðlantýsý baþarýsýz oldu: {redisConnection}", ex);
+    }
+});
+
 
 // **3. Servisleri DI Konteynerine Ekleyin**
 
 
-//builder.Services.AddScoped<WorkloadService>();
+builder.Services.AddScoped<WorkloadService>();
 
 // **4. Varsayýlan Ayarlarý Ekleyin**
 builder.Services.AddControllers();
