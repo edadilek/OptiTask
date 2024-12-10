@@ -9,6 +9,6 @@ namespace DataAccessLayer.Interface
 {
     public interface IUserRepository :IGenericRepository<User>
     {
-
+        Task<User> GetByEmail(string email);
     }
 }
