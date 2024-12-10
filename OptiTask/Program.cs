@@ -49,6 +49,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
 
 builder.Services.AddScoped<WorkloadService>();
+builder.Services.AddScoped<TaskService>();
+
 
 // **4. Varsayýlan Ayarlarý Ekleyin**
 builder.Services.AddControllers();
