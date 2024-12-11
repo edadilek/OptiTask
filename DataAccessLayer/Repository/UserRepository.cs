@@ -24,5 +24,19 @@ namespace DataAccessLayer.Repository
 
             return result;
         }
+
+        public async Task<bool> CheckIfUserExists(string email)
+        {
+            var isExists = await _appDbContext.Set<User>().Where(el => el.Mail == email).CountAsync() == 0 ? false : true;
+
+            return isExists;
+        }
+
+        public async Task<bool> CheckIfUserExists(int id)
+        {
+            var isExists = await _appDbContext.Set<User>().Where(el => el.UserId == id).CountAsync() == 0 ? false : true;
+
+            return isExists;
+        }
     }
 }

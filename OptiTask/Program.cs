@@ -1,12 +1,16 @@
 using DataAccessLayer;
-using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
-using OptiTask.Services;
+using DataAccessLayer.Entity;
 using DataAccessLayer.Interface;
 using DataAccessLayer.Repository;
-using OptiTask.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using OptiTask.Middlewares;
+using OptiTask.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +35,9 @@ builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<AuthService>();
+
 
 // **2. Redis Baðlantýsýný Yapýlandýrýn**
 //builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
@@ -48,43 +54,92 @@ builder.Services.AddScoped<AuthService>();
 // **4. Varsayýlan Ayarlarý Ekleyin**
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT token'ýnýzý Bearer <token> formatýnda girin."
+    });
 
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 // Authentication and Authorization
 var jwtKey = builder.Configuration["Jwt:Key"];
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters()
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-        };
-
-        options.Events = new JwtBearerEvents()
-        {
-            OnMessageReceived = context =>
-            {
-                var token = context.HttpContext.Request.Cookies["jwt"];
-                if (!string.IsNullOrEmpty(token))
-                {
-                    context.Token = token;
-                }
-                return Task.CompletedTask;
-            }
-        };
-    });
-
 builder.Services.AddAuthorization();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(options =>
+{
+    options.Events = new JwtBearerEvents()
+    {
+        OnMessageReceived = ctx =>
+        {
+            if (ctx.Request.Cookies.TryGetValue("jwt", out var token))
+            {
+                var handler = new JwtSecurityTokenHandler();
+
+                var readToken = handler.ReadJwtToken(token);
+                Console.WriteLine($"Token ValidTo: {readToken.ValidTo} | System UTC Now: {DateTime.UtcNow}");
+
+                try
+                {
+                    var claims = handler.ValidateToken(token, new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperSecretKeyAmAboutToGoCr@zySickOfThisRules")),
+                        ValidateIssuerSigningKey = true
+                    }, out var validatedToken);
+
+                    Console.WriteLine("Token manually validated.");
+                    ctx.Principal = new ClaimsPrincipal(claims);
+                    ctx.Success();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Manual validation failed: {ex.Message}");
+                }
+            }
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = ctx =>
+        {
+            Console.WriteLine($"Token authentication failed: {ctx.Exception.Message}");
+            return Task.CompletedTask;
+        }
+    };
+});
 
 var app = builder.Build();
 
@@ -94,6 +149,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+Console.WriteLine(app.Configuration["Jwt:Key"]);
+
+app.UseCors("AllowAll");
+
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity.IsAuthenticated)
+    {
+        var roles = context.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
+        Console.WriteLine($"Roles: {string.Join(", ", roles)}");
+    }
+    await next.Invoke();
+});
+
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 

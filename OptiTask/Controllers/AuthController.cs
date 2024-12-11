@@ -19,60 +19,40 @@ namespace OptiTask.Controllers
         private readonly IUserRepository _userRepository;
         private readonly UserService _userService;
         private readonly AuthService _authService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IConfiguration configuration, IUserRepository userRepository, UserService userService, AuthService authService)
+        public AuthController(IConfiguration configuration, IUserRepository userRepository, UserService userService, AuthService authService, ILogger<AuthController> logger)
         {
             _configuration = configuration;
             _userRepository = userRepository;
             _userService = userService;
             _authService = authService;
+            _logger = logger;
         }
 
-        [HttpPost]
+        [HttpPost("/login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO creds)
         {
             if (string.IsNullOrEmpty(creds.Email) || string.IsNullOrEmpty(creds.Password)) {
                 return BadRequest("Provide an appropiate body!");
             }
 
-            var existedUser = await _userRepository.GetByEmail(creds.Email);
-            if (existedUser == null)
+            var principal = await _authService.AuthenticateUserAsync(creds.Email, creds.Password, HttpContext);
+
+            if (principal == null)
             {
-                return BadRequest("Email Not Registered");
+                return Forbid("Try again to login!");
             }
 
-
-            bool verifyPassword = _userService.VerifyUserPassword(existedUser, creds.Password);
-
-            if (!verifyPassword)
-            {
-                return BadRequest("Invalid crendentials!");
-            }
-
-            List<Claim> claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Email, existedUser.Mail),
-                new Claim(ClaimTypes.Role, existedUser.Role),
-            };
-
-            string jwtToken = _authService.GenerateToken(claims);
-
-            HttpContext.Response.Cookies.Append("jwt", jwtToken, new CookieOptions()
-            {
-                Secure = true,
-                HttpOnly = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddMinutes(2)
-            });
+            HttpContext.User = principal;
 
             return Ok(new
             {
-                User = existedUser.UserId,
                 Message = "Logged In"
             });
         }
 
-        [HttpPost]
+        [HttpPost("/signup")]
         public async Task<IActionResult> Signup([FromBody] UserDTO userDTO)
         {
             if(string.IsNullOrEmpty(userDTO.Name) || string.IsNullOrEmpty(userDTO.Surname) || string.IsNullOrEmpty(userDTO.Mail) || string.IsNullOrEmpty(userDTO.Password))
@@ -80,8 +60,8 @@ namespace OptiTask.Controllers
                 return BadRequest("Provide an appropiate body!");
             }
 
-            var existedUser = _userRepository.GetByEmail(userDTO.Mail);
-            if (existedUser != null)
+            var isExists = await _userRepository.CheckIfUserExists(userDTO.Mail);
+            if (isExists)
             {
                 return BadRequest("User exists!");
             }
@@ -92,7 +72,7 @@ namespace OptiTask.Controllers
                 Name = userDTO.Name,
                 Mail = userDTO.Mail,
                 Surname = userDTO.Surname,
-                Role = "User"
+                Role = userDTO.Role
             };
 
             _userService.SetUserPassword(newUser, userDTO.Password);
@@ -101,32 +81,9 @@ namespace OptiTask.Controllers
 
             var result = await _userRepository.Create(newUser);
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var secretKey = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Email, result.Mail),
-                new Claim(ClaimTypes.Role, result.Role)
-            };
-
-            var tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
-            HttpContext.Response.Cookies.Append("jwt", tokenString, new CookieOptions()
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddMinutes(2)
-            });
+            _logger.LogInformation("User Created");
+           
+            await _authService.AuthenticateUserAsync(userDTO.Mail, userDTO.Password, HttpContext);
 
             return Ok(new
             {

@@ -5,9 +5,9 @@ namespace OptiTask.Services
 {
     public class UserService
     {
-        private readonly PasswordHasher<User> _passwordHasher;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserService(PasswordHasher<User> passwordHasher)
+        public UserService(IPasswordHasher<User> passwordHasher)
         {
             _passwordHasher = passwordHasher;
         }
