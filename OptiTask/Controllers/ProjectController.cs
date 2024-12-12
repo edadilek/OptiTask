@@ -13,6 +13,7 @@ namespace OptiTask.Controllers
     {
         private readonly IProjectRepository projectRepository;
         private readonly ITeamRepository teamRepository;
+
         public ProjectController(IProjectRepository projectRepository, ITeamRepository teamRepository)
         {
             this.projectRepository = projectRepository;
@@ -39,9 +40,9 @@ namespace OptiTask.Controllers
                 TeamId = project.TeamId,
             };
 
-            await projectRepository.Create(newProject);
+            var result = await projectRepository.Create(newProject);
 
-            return Ok(project);
+            return Ok(result);
         }
 
         // Projeyi takıma atama

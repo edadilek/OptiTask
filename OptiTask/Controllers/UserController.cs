@@ -5,6 +5,7 @@ using DataAccessLayer;
 using OptiTask.DTOs;
 using DataAccessLayer.Repository;
 using DataAccessLayer.Interface;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OptiTask.Controllers
 {
@@ -20,6 +21,7 @@ namespace OptiTask.Controllers
         }
 
         // Kullanıcıları listeleme
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {

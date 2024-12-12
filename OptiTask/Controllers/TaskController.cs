@@ -29,7 +29,6 @@ namespace OptiTask.Controllers
             if (task == null)
                 return NotFound("Görev bulunamadı!");
 
-
             try
             {
                 var assignedUser = await _taskService.AssignTaskAsync(task);
@@ -132,10 +131,48 @@ namespace OptiTask.Controllers
 //    }
 //}
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTask(int id)
+        {
+            var existedTask = await tasksRepository.GetById(id);
+        
+            if(existedTask == null) return NotFound();
 
+            await tasksRepository.Delete(existedTask);
 
+            return Ok("Task Silindi!");
+        }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTask(int id, [FromBody] TasksDTO tasksDTO)
+        {
+            var existedTask = await tasksRepository.GetById(id);
 
+            if (existedTask == null) return NotFound();
+
+            if (tasksDTO == null)
+            {
+                return BadRequest("Please provide a proper body!");
+            }
+
+            if (tasksDTO.Name != null)
+            {
+                existedTask.Name = tasksDTO.Name;
+            }
+
+            if (tasksDTO.Description != null)
+            {
+                existedTask.Description = tasksDTO.Description;
+            }
+
+            // Entitylerde Id dışındaki kısımları string olarak güncelle !!!
+
+            var result = await tasksRepository.Update(existedTask);
+
+            return Ok(result);
+        }
+    }
+}
 
 
 

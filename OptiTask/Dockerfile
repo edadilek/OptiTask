@@ -12,6 +12,8 @@ WORKDIR /src
 COPY ["OptiTask/OptiTask.csproj", "OptiTask/"]
 RUN dotnet restore "./OptiTask/OptiTask.csproj"
 COPY . .
+
+
 WORKDIR "/src/OptiTask"
 RUN dotnet build "./OptiTask.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
@@ -22,4 +24,9 @@ RUN dotnet publish "./OptiTask.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+ENV JWT_KEY="SuperSecretKey123!"
+ENV JWT_ISSUER="localhost:32775"
+ENV JWT_AUDIENCE="localhost:32775"
+
 ENTRYPOINT ["dotnet", "OptiTask.dll"]
