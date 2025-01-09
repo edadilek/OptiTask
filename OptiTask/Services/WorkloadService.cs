@@ -47,6 +47,12 @@ namespace OptiTask.Services
             return workload.HasValue ? double.Parse(workload) : 0.0; // Eğer yoksa 0.0 döner.
         }
 
+        // Kullanıcının iş yükünü güncelle
+        public async Task UpdateWorkloadAsync(int userId, double newWorkload)
+        {
+            await _redisDb.StringSetAsync($"user:{userId}:workload", newWorkload);
+        }
+
         /// <summary>
         /// Kullanıcının iş yükünü (current_load) ayarlar.
         /// </summary>
