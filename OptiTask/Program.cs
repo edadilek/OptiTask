@@ -33,6 +33,8 @@ builder.Services.AddScoped<ITaskAssignmentRepository, TaskAssignmentRepository>(
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
+builder.Services.AddScoped<ITeamProjectRepository, TeamProjectRepository>();
+builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

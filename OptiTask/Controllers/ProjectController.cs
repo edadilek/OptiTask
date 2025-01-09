@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DataAccessLayer;
 using DataAccessLayer.Repository;
 using DataAccessLayer.Interface;
+using OptiTask.DTOs;
 
 namespace OptiTask.Controllers
 {
@@ -13,11 +14,13 @@ namespace OptiTask.Controllers
     {
         private readonly IProjectRepository projectRepository;
         private readonly ITeamRepository teamRepository;
+        private readonly ITeamProjectRepository teamProjectRepository;
 
-        public ProjectController(IProjectRepository projectRepository, ITeamRepository teamRepository)
+        public ProjectController(IProjectRepository projectRepository, ITeamRepository teamRepository, ITeamProjectRepository teamProjectRepository)
         {
             this.projectRepository = projectRepository;
             this.teamRepository = teamRepository;
+            this.teamProjectRepository = teamProjectRepository;
         }
 
         // Projeleri listeleme
@@ -30,14 +33,13 @@ namespace OptiTask.Controllers
 
         // Yeni proje oluşturma
         [HttpPost]
-        public async Task<IActionResult> CreateProject([FromBody] Project project)
+        public async Task<IActionResult> CreateProject([FromBody] ProjectDTO project)
         {
-            var newProject = new Project() {
-                Description = project.Description,
+            var newProject = new Project()
+            {
                 Name = project.Name,
+                Description = project.Description,
                 Status = project.Status,
-                Team = project.Team,
-                TeamId = project.TeamId,
             };
 
             var result = await projectRepository.Create(newProject);
@@ -54,13 +56,16 @@ namespace OptiTask.Controllers
 
             if (project == null || team == null) return NotFound();
 
-            project.TeamId = teamId;
+            var assignment = new TeamProject()
+            {
+                project = project,
+                team = team,
+                projectId = projectId,
+                teamId = teamId
+            };
 
-            project.Team = team;
-            project.TeamId = teamId;
-
-            await projectRepository.Update(project);
-            return Ok(project);
+            await teamProjectRepository.Create(assignment);
+            return Ok(assignment);
         }
     }
 }

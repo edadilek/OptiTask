@@ -7,14 +7,12 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Entity
 {
-    public class TeamMember
+    public class TeamProject
     {
-        public int TeamId { get; set; }
-        public int UserId { get; set; }
+        public int teamId { get; set; }
+        public int projectId { get; set; }
 
-
-        public Team Team { get; set; } = null!;
-        public User User { get; set; } = null!;
+        public Project project { get; set; } = null!;
+        public Team team { get; set; } = null!;
     }
-
 }
