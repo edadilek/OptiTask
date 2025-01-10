@@ -13,7 +13,7 @@ namespace DataAccessLayer
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=optiTaskDb;Username=admin;Password=postgres;");
+            optionsBuilder.UseNpgsql("Host=172.17.0.2;Port=5432;Database=optiTaskDb;Username=admin;Password=postgres;");
 
             return new AppDbContext(optionsBuilder.Options);
         }

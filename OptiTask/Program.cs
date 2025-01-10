@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OptiTask.Middlewares;
 using OptiTask.Services;
+using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -60,7 +61,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
 
 builder.Services.AddScoped<WorkloadService>();
-builder.Services.AddScoped<TaskService>();
+//builder.Services.AddScoped<TaskService>();
 
 
 // **4. Varsayýlan Ayarlarý Ekleyin**
