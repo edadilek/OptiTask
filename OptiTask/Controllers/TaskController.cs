@@ -73,6 +73,3 @@ namespace OptiTask.Controllers
         }
     }
 }
-
-
-
