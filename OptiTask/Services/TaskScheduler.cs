@@ -1,55 +1,72 @@
-﻿//using DataAccessLayer.Interface;
+﻿using DataAccessLayer.Interface;
 
-//namespace OptiTask.Services
-//{
-//    public class TaskScheduler : BackgroundService
-//    {
-//        private readonly ITaskAssignmentRepository _taskAssignmentRepository;
-//        private readonly ITasksRepository _taskRepository;
+namespace OptiTask.Services
+{
+    public class TaskScheduler : BackgroundService
+    {
+        private readonly ITaskAssignmentRepository _taskAssignmentRepository;
+        private readonly ITasksRepository _taskRepository;
+        private readonly IWorkloadRepository _workloadRepository;
+        private readonly WorkloadService _workloadService;
 
-//        private readonly ILogger _logger;
+        private readonly ILogger _logger;
 
-//        public TaskScheduler(ITasksRepository taskRepository, ILogger logger, ITaskAssignmentRepository taskAssignmentRepository)
-//        {
-//            _taskAssignmentRepository = taskAssignmentRepository;
-//            _logger = logger;
-//            _taskRepository = taskRepository;
-//        }
+        public TaskScheduler(ITasksRepository taskRepository, ILogger logger, ITaskAssignmentRepository taskAssignmentRepository, IWorkloadRepository workloadRepository, WorkloadService workloadService)
+        {
+            _taskAssignmentRepository = taskAssignmentRepository;
+            _logger = logger;
+            _taskRepository = taskRepository;
+            _workloadRepository = workloadRepository;
+            _workloadService = workloadService;
+        }
 
 
-//        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-//        {
-//            while (!stoppingToken.IsCancellationRequested)
-//            {
-//                try
-//                {
-//                    // Tüm görevleri al
-//                    var assignments = await _taskAssignmentRepository.GetAll();
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await UpdateDelayedAssignments(stoppingToken);
+                await WorkloadFromDbToRedis(stoppingToken);
+            }
+        }
 
-//                    foreach (var assignment in assignments)
-//                    {
-//                        var task = await _taskRepository.GetById(assignment.TaskId);
-                        
+        private async Task UpdateDelayedAssignments(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var assignments = await _taskAssignmentRepository.GetAll();
 
-//                        // Görevin tahmini süresi geçmiş mi kontrol et
-//                        if (task.EstimatedLoad <= (DateTime.UtcNow - task.).TotalMinutes && task.Status != "Gecikti")
-//                        {
-//                            // Status alanını "Gecikti" olarak güncelle
-//                            task.Status = "Gecikti";
-//                            await _taskRepository.UpdateTaskAsync(task);
+                foreach (var assignment in assignments)
+                {
+                    var task = await _taskRepository.GetById(assignment.TaskId);
 
-//                            _logger.LogInformation($"Görev {task.TaskId} gecikti olarak güncellendi.");
-//                        }
-//                    }
-//                }
-//                catch (Exception ex)
-//                {
-//                    _logger.LogError($"Hata oluştu: {ex.Message}");
-//                }
+                    if (task.EstimatedLoad <= (DateTime.UtcNow - assignment.AssignedAt).TotalMinutes && assignment.Status != "Delayed")
+                    {
+                        assignment.Status = "Delayed";
 
-//                // Görevi belirli aralıklarla çalıştır
-//                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
-//            }
-//        }
-//    }
-//}
+                        await _taskAssignmentRepository.Update(assignment);
+                    }
+                }
+                _logger.LogInformation("Assignment Delay Check");
+
+                await Task.Delay(TimeSpan.FromMinutes(2), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An Error Occured: {ex.Message}");
+            }
+        }
+
+        private async Task WorkloadFromDbToRedis(CancellationToken cancellationToken)
+        {
+            var workloads = await _workloadRepository.GetAll();
+            foreach (var workload in workloads)
+            {
+                await _workloadService.IncreaseWorkloadAsync(workload.userId, workload.workload);
+            }
+            _logger.LogInformation("Workloads are loaded from Database to Redis!");
+
+            await Task.Delay(TimeSpan.FromMinutes(3), cancellationToken);
+        }
+    }
+}

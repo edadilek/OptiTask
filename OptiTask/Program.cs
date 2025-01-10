@@ -16,7 +16,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// **1. Veritabaný Baðlantýsýný Yapýlandýrýn (PostgreSQL için)**
 builder.Services.AddNpgsql<AppDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"), null, optionsAction =>
 {
     optionsAction.UseNpgsql(builder =>
@@ -36,28 +35,16 @@ builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
 builder.Services.AddScoped<ITeamProjectRepository, TeamProjectRepository>();
 builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
+builder.Services.AddScoped<IWorkloadRepository, WorkloadRepository>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<WorkloadService>();
+builder.Services.AddScoped<TaskService>();
 
 
 // **2. Redis Baðlantýsýný Yapýlandýrýn**
-
-
-//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-//{
-//    var redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
-//    try
-//    {
-//        return ConnectionMultiplexer.Connect(redisConnection);
-//    }
-//    catch (Exception ex)
-//    {
-//        throw new InvalidOperationException($"Redis baðlantýsý baþarýsýz oldu: {redisConnection}", ex);
-//    }
-//});
-
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
@@ -72,20 +59,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(options);
 });
 
-
-
-
-
-
-
-// **3. Servisleri DI Konteynerine Ekleyin**
-
-
-builder.Services.AddScoped<WorkloadService>();
-builder.Services.AddScoped<TaskService>();
-
-
-// **4. Varsayýlan Ayarlarý Ekleyin**
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
