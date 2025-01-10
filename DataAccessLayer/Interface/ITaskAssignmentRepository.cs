@@ -9,5 +9,6 @@ namespace DataAccessLayer.Interface
 {
     public interface ITaskAssignmentRepository : IGenericRepository<TaskAssignment>
     {
+        Task<TaskAssignment> GetTaskAssignment(int taskId, int userId);
     }
 }

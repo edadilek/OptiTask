@@ -31,6 +31,20 @@ namespace OptiTask.Controllers
             return Ok(projects);
         }
 
+        [HttpGet("{projectId}")]
+        public async Task<IActionResult> GetProjectById(int projectId)
+        {
+            var project = await projectRepository.GetById(projectId);
+
+            if (project == null)
+            {
+                return NotFound("Project not found");
+            }
+
+            return Ok(project);
+        }
+
+
         // Yeni proje oluşturma
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] ProjectDTO project)
@@ -66,6 +80,53 @@ namespace OptiTask.Controllers
 
             await teamProjectRepository.Create(assignment);
             return Ok(assignment);
+        }
+
+        [HttpDelete("{projectId}/assign-team")]
+        public async Task<IActionResult> ResignTeamFromProject(int projectId, [FromBody] int teamId)
+        {
+            var projectTeam = await teamProjectRepository.GetTeamProjectAsync(teamId, projectId);
+
+            if(projectTeam == null) return NotFound();
+
+            
+            await teamProjectRepository.Delete(projectTeam);
+
+            return Ok(projectTeam);
+        }
+
+        [HttpDelete("{projectId}")]
+        public async Task<IActionResult> DeleteProject(int projectId)
+        {
+            var project = await projectRepository.GetById(projectId);
+
+            if (project == null)
+            {
+                return NotFound("Proje bulunamadı");
+            }
+
+            await projectRepository.Delete(project);
+
+            return Ok($"Proje Silindi: \n{project}");
+        }
+
+        [HttpPut("{projectId}")]
+        public async Task<IActionResult> UpdateProject(int projectId, [FromBody] ProjectDTO projectDTO)
+        {
+            var project = await projectRepository.GetById(projectId);
+
+            if (projectDTO.Status == null || projectDTO.Name == null || projectDTO.Description == null)
+            {
+                return BadRequest("Provide proper body");
+            }
+
+            project.Status = projectDTO.Status;
+            project.Name = projectDTO.Name;
+            project.Description = projectDTO.Description;
+
+            await projectRepository.Update(project);
+
+            return Ok(project);
         }
     }
 }

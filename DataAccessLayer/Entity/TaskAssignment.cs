@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataAccessLayer.Entity
+﻿namespace DataAccessLayer.Entity
 {
     public class TaskAssignment
     {
@@ -13,6 +6,7 @@ namespace DataAccessLayer.Entity
         public int UserId { get; set; }
 
         public DateTime AssignedAt { get; set; }
+        public string Status { get; set; } = string.Empty;
         public Tasks Task { get; set; } = null!;
         public User User { get; set; } = null!;
     }

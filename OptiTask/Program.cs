@@ -43,25 +43,46 @@ builder.Services.AddScoped<AuthService>();
 
 
 // **2. Redis Baðlantýsýný Yapýlandýrýn**
+
+
+//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+//{
+//    var redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
+//    try
+//    {
+//        return ConnectionMultiplexer.Connect(redisConnection);
+//    }
+//    catch (Exception ex)
+//    {
+//        throw new InvalidOperationException($"Redis baðlantýsý baþarýsýz oldu: {redisConnection}", ex);
+//    }
+//});
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
-    try
-    {
-        return ConnectionMultiplexer.Connect(redisConnection);
-    }
-    catch (Exception ex)
-    {
-        throw new InvalidOperationException($"Redis baðlantýsý baþarýsýz oldu: {redisConnection}", ex);
-    }
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var redisConnection = configuration.GetConnectionString("RedisConnection");
+
+    if (string.IsNullOrEmpty(redisConnection))
+        throw new InvalidOperationException("Redis connection string is not configured");
+
+    var options = ConfigurationOptions.Parse(redisConnection);
+    options.AbortOnConnectFail = false; // Baðlantý hatalarýna karþý daha toleranslý ol
+
+    return ConnectionMultiplexer.Connect(options);
 });
+
+
+
+
+
 
 
 // **3. Servisleri DI Konteynerine Ekleyin**
 
 
 builder.Services.AddScoped<WorkloadService>();
-//builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<TaskService>();
 
 
 // **4. Varsayýlan Ayarlarý Ekleyin**
@@ -161,6 +182,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+
+    var application = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var pendingMigrations = await application.Database.GetPendingMigrationsAsync();
+    if (pendingMigrations != null)
+        await application.Database.MigrateAsync();
 }
 
 Console.WriteLine(app.Configuration["Jwt:Key"]);

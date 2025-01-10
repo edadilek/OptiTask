@@ -1,9 +1,17 @@
 ﻿using System.Net;
 using System.Text.Json;
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace OptiTask.Middlewares
 {
+    public class NotFoundException : Exception
+    {
+        public NotFoundException(string message) : base(message)
+        {
+        }
+    }
+
     public class GlobalExceptionMiddleware
     {
         private readonly RequestDelegate _next;
@@ -31,21 +39,26 @@ namespace OptiTask.Middlewares
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            var response = new
+            var response = ex switch
             {
-                StatusCode = context.Response.StatusCode,
-                Message = "An unexpected error occurred.",
-                Details = ex.Message
+                NotFoundException notFoundException => new
+                {
+                    StatusCode = (int)HttpStatusCode.NotFound,
+                    Message = ex.Message,
+                    Details = "The requested resource was not found."
+                },
+                _ => new
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    Message = "An unexpected error occurred.",
+                    Details = ex.Message
+                }
             };
 
+            context.Response.StatusCode = response.StatusCode;
             var jsonResponse = JsonSerializer.Serialize(response);
-
             return context.Response.WriteAsync(jsonResponse);
         }
-
-
-
     }
 }

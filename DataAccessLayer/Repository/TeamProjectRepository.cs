@@ -1,10 +1,6 @@
 ﻿using DataAccessLayer.Entity;
 using DataAccessLayer.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repository
 {
@@ -15,6 +11,17 @@ namespace DataAccessLayer.Repository
         public TeamProjectRepository(AppDbContext context) : base(context) 
         {
             _context = context;
+        }
+
+        public async Task<TeamProject> GetTeamProjectAsync(int teamId, int projectId)
+        {
+            var teamProject = await _context.Set<TeamProject>().Where(el => el.teamId == teamId).Where(el => el.projectId == projectId).FirstOrDefaultAsync();
+
+            if (teamProject == null) {
+                return new TeamProject();
+            }
+
+            return teamProject;
         }
     }
 }

@@ -9,6 +9,6 @@ namespace DataAccessLayer.Interface
 {
     public interface ITeamProjectRepository : IGenericRepository<TeamProject>
     {
-
+        Task<TeamProject> GetTeamProjectAsync(int teamId, int projectId);
     }
 }

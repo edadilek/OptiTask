@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OptiTask", "OptiTask\OptiTa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{2B94B9D8-8285-43A5-94B6-6183C1E246BF}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{16F95F41-0580-4948-8A37-93237CF368FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2B94B9D8-8285-43A5-94B6-6183C1E246BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B94B9D8-8285-43A5-94B6-6183C1E246BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B94B9D8-8285-43A5-94B6-6183C1E246BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16F95F41-0580-4948-8A37-93237CF368FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16F95F41-0580-4948-8A37-93237CF368FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16F95F41-0580-4948-8A37-93237CF368FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16F95F41-0580-4948-8A37-93237CF368FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

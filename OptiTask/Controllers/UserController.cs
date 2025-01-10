@@ -29,6 +29,19 @@ namespace OptiTask.Controllers
             return Ok(users);
         }
 
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserById(int userId)
+        {
+            var user = await userRepository.GetById(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
         // Yeni kullanıcı oluşturma
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserDTO user)

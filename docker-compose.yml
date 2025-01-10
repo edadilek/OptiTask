@@ -1,0 +1,10 @@
+services:
+  optitask:
+    image: ${DOCKER_REGISTRY-}optitask
+    build:
+      context: .
+      dockerfile: OptiTask/Dockerfile
+
+networks:
+  optitask-network:
+    driver: bridge
