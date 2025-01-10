@@ -15,14 +15,22 @@ namespace DataAccessLayer.Repository
 
         public TeamMemberRepository(AppDbContext appDbContext) : base(appDbContext)
         {
-
             _appDbContext = appDbContext;
+        }
+
+        public async Task<List<TeamMember>> GetTeamMembers(int teamId)
+        {
+            return await _appDbContext.TeamMembers
+                .Include(tm => tm.User)  // User bilgilerini de yükle
+                .Where(tm => tm.TeamId == teamId)
+                .ToListAsync();
         }
 
         public async Task<TeamMember> GetMemberShip(int teamId, int userId)
         {
-            var membership = await _appDbContext.TeamMembers.FindAsync(teamId, userId);
-
+            var membership = await _appDbContext.TeamMembers
+                .Include(tm => tm.User)  // User bilgilerini de yükle
+                .FirstOrDefaultAsync(tm => tm.TeamId == teamId && tm.UserId == userId);
             return membership;
         }
     }

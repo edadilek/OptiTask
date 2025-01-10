@@ -9,6 +9,7 @@ namespace DataAccessLayer.Interface
 {
     public interface ITeamMemberRepository : IGenericRepository<TeamMember>
     {
+        Task<List<TeamMember>> GetTeamMembers(int teamId);
         Task<TeamMember> GetMemberShip(int teamId, int userId);
     }
 }
