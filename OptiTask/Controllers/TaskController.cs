@@ -20,9 +20,5 @@ namespace OptiTask.Controllers
             _taskService = taskService;
             _taskRepository = taskRepository;
         }
-
     }
 }
-
-
-
