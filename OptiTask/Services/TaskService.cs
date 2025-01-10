@@ -21,7 +21,6 @@ namespace OptiTask.Services
             _taskAssignmentRepository = taskAssignmentRepository;
             _workloadService = workloadService;
         }
-
     }
 }
 
