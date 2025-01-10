@@ -83,7 +83,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
 builder.Services.AddScoped<WorkloadService>();
 builder.Services.AddScoped<TaskService>();
-//builder.Services.AddScoped<TaskService>();
 
 
 // **4. Varsayýlan Ayarlarý Ekleyin**
@@ -183,6 +182,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+
+    var application = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var pendingMigrations = await application.Database.GetPendingMigrationsAsync();
+    if (pendingMigrations != null)
+        await application.Database.MigrateAsync();
 }
 
 Console.WriteLine(app.Configuration["Jwt:Key"]);

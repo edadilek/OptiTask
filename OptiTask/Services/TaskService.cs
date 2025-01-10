@@ -72,7 +72,8 @@ namespace OptiTask.Services
             {
                 TaskId = taskId,
                 UserId = userId,
-                AssignedAt = DateTime.UtcNow
+                AssignedAt = DateTime.UtcNow,
+                Status = "In Processing"
             };
 
             return await _taskAssignmentRepository.Create(assignment);
@@ -116,6 +117,8 @@ namespace OptiTask.Services
             // En uygun kullanıcıyı seç
             var selectedUserId = await SelectBestUserForTaskAsync(userWorkloads);
 
+            task.Status = "In Processing";
+
             // Seçilen kullanıcıya görevi ata
             return await AssignTaskToUserAsync(taskId, selectedUserId);
         }
@@ -145,24 +148,5 @@ namespace OptiTask.Services
             return task.EstimatedLoad * task.Difficulty;
         }
     } 
-    //public class TaskService
-    //{
-    //    private readonly IUserRepository _userRepository;
-    //    private readonly ITasksRepository _taskRepository;
-    //    private readonly ITaskAssignmentRepository _taskAssignmentRepository;
-    //    private readonly WorkloadService _workloadService;
-
-    //    public TaskService(
-    //        IUserRepository userRepository,
-    //        ITasksRepository taskRepository,
-    //        ITaskAssignmentRepository taskAssignmentRepository,
-    //        WorkloadService workloadService)
-    //    {
-    //        _userRepository = userRepository;
-    //        _taskRepository = taskRepository;
-    //        _taskAssignmentRepository = taskAssignmentRepository;
-    //        _workloadService = workloadService;
-    //    }
-    //}
 }
 

@@ -6,6 +6,7 @@
         public int UserId { get; set; }
 
         public DateTime AssignedAt { get; set; }
+        public string Status { get; set; } = string.Empty;
         public Tasks Task { get; set; } = null!;
         public User User { get; set; } = null!;
     }
