@@ -16,5 +16,12 @@ namespace DataAccessLayer.Repository
         {
             _context = context;
         }
+
+        public async Task<ProjectTask> GetProjectTask(int  projectId, int taskId)
+        {
+            var projectTask = await _context.Set<ProjectTask>().FindAsync(projectId, taskId);
+
+            return projectTask;
+        }
     }
 }

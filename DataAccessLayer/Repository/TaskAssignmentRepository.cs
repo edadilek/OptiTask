@@ -1,10 +1,5 @@
 ﻿using DataAccessLayer.Entity;
 using DataAccessLayer.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccessLayer.Repository
 {
@@ -16,6 +11,13 @@ namespace DataAccessLayer.Repository
 
             _appDbContext = appDbContext;
 
+        }
+
+        public async Task<TaskAssignment> GetTaskAssignment(int taskId, int userId)
+        {
+            var taskAssignment = await _appDbContext.Set<TaskAssignment>().FindAsync(taskId, userId);
+
+            return taskAssignment;
         }
     }
 }

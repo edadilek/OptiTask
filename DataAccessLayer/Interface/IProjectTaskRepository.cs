@@ -1,14 +1,9 @@
 ﻿using DataAccessLayer.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccessLayer.Interface
 {
     public interface IProjectTaskRepository : IGenericRepository<ProjectTask>
     {
-
+        Task<ProjectTask> GetProjectTask(int projectId, int taskId);
     }
 }
