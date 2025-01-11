@@ -37,6 +37,16 @@ namespace OptiTask.Services
             var newLoad = Math.Max(0, currentLoad - amount);
             await _redisDb.StringSetAsync(key, newLoad);
         }
+
+        public async Task<List<string>> GetAllWorkloadKeys()
+        {
+            var keys = await _redisDb.ExecuteAsync("KEYS",$"{WORKLOAD_KEY_PREFIX}*");
+
+            var result = ((RedisResult[]) keys).Select(k => k.ToString()).ToList();
+
+            return result;
+        }
+
     }
 }
 

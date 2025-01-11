@@ -11,6 +11,7 @@ namespace OptiTask.Services
         private readonly ITasksRepository _taskRepository;
         private readonly ITaskAssignmentRepository _taskAssignmentRepository;
         private readonly ITeamMemberRepository _teamMemberRepository;
+        private readonly IWorkloadRepository _workloadRepository;
         private readonly WorkloadService _workloadService;
         private readonly ILogger<TaskService> _logger;
 
@@ -19,6 +20,7 @@ namespace OptiTask.Services
             ITasksRepository taskRepository,
             ITaskAssignmentRepository taskAssignmentRepository,
             ITeamMemberRepository teamMemberRepository,
+            IWorkloadRepository workloadRepository,
             WorkloadService workloadService,
             ILogger<TaskService> logger)
         {
@@ -26,6 +28,7 @@ namespace OptiTask.Services
             _taskRepository = taskRepository;
             _taskAssignmentRepository = taskAssignmentRepository;
             _teamMemberRepository = teamMemberRepository;
+            _workloadRepository = workloadRepository;
             _workloadService = workloadService;
             _logger = logger;
         }
@@ -72,6 +75,19 @@ namespace OptiTask.Services
 
             var workload = CalculateTaskWorkload(task);
             await _workloadService.IncreaseWorkloadAsync(userId, workload);
+
+            var workloadDb = new Workload()
+            {
+                userId = userId,
+                workload = workload
+            };
+            var dbRes = await _workloadRepository.Create(workloadDb);
+            
+            if (dbRes == null)
+            {
+                _logger.LogError("Workload registration failed!");
+                throw new Exception("Workload registration failed");
+            }
 
             var assignment = new TaskAssignment
             {
