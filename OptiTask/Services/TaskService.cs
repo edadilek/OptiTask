@@ -61,6 +61,11 @@ namespace OptiTask.Services
             if (task == null || user == null)
                 throw new NotFoundException("Task or user not found");
 
+            if (task.Status != "Idle")
+            {
+                throw new InvalidOperationException("This task has already been assigned");
+            }
+
             // Rol kontrolü
             if (user.Role != task.Role)
                 throw new InvalidOperationException("User role does not match task requirements");
@@ -85,6 +90,10 @@ namespace OptiTask.Services
             var task = await _taskRepository.GetById(taskId);
             if (task == null)
                 throw new NotFoundException("Task not found");
+            if (task.Status != "Idle")
+            {
+                throw new InvalidOperationException("This task has already been assigned");
+            }
 
             // Takımdaki uygun role sahip kullanıcıları bul
             var teamMembers = await _teamMemberRepository.GetTeamMembers(teamId);
@@ -117,7 +126,7 @@ namespace OptiTask.Services
             // En uygun kullanıcıyı seç
             var selectedUserId = await SelectBestUserForTaskAsync(userWorkloads);
 
-            task.Status = "In Processing";
+            //task.Status = "In Processing";
 
             // Seçilen kullanıcıya görevi ata
             return await AssignTaskToUserAsync(taskId, selectedUserId);
