@@ -5,6 +5,7 @@ using DataAccessLayer.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OptiTask.Middlewares;
@@ -104,51 +105,11 @@ var jwtKey = builder.Configuration["Jwt:Key"];
 builder.Services.AddAuthorization();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(options =>
-{
-    options.Events = new JwtBearerEvents()
-    {
-        OnMessageReceived = ctx =>
-        {
-            if (ctx.Request.Cookies.TryGetValue("jwt", out var token))
-            {
-                var handler = new JwtSecurityTokenHandler();
-
-                var readToken = handler.ReadJwtToken(token);
-                Console.WriteLine($"Token ValidTo: {readToken.ValidTo} | System UTC Now: {DateTime.UtcNow}");
-
-                try
-                {
-                    var claims = handler.ValidateToken(token, new TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperSecretKeyAmAboutToGoCr@zySickOfThisRules")),
-                        ValidateIssuerSigningKey = true
-                    }, out var validatedToken);
-
-                    Console.WriteLine("Token manually validated.");
-                    ctx.Principal = new ClaimsPrincipal(claims);
-                    ctx.Success();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Manual validation failed: {ex.Message}");
-                }
-            }
-            return Task.CompletedTask;
-        },
-        OnAuthenticationFailed = ctx =>
-        {
-            Console.WriteLine($"Token authentication failed: {ctx.Exception.Message}");
-            return Task.CompletedTask;
-        }
-    };
-});
+.AddJwtBearer();
 
 var app = builder.Build();
+
+var logger = app.Logger;
 
 // **5. HTTP Request Pipeline'ý Yapýlandýrýn**
 if (app.Environment.IsDevelopment())
@@ -170,10 +131,27 @@ app.UseCors("AllowAll");
 
 app.Use(async (context, next) =>
 {
-    if (context.User.Identity.IsAuthenticated)
+    logger.LogInformation("Authentication Middleware");
+    var jwtToken = context.Request.Cookies["jwt"];
+    if (jwtToken != null)
     {
-        var roles = context.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
-        Console.WriteLine($"Roles: {string.Join(", ", roles)}");
+        var jwtHandler = new JwtSecurityTokenHandler();
+
+        var validateParams = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("SuperSecretKeyAmAboutToGoCr@zySickOfThisRules")),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            ValidateAudience = false,
+            ValidateIssuer = false,
+        };
+
+        var principalToken = jwtHandler.ValidateToken(jwtToken, validateParams, out SecurityToken validatedToken);
+        if (validatedToken != null)
+        {
+            context.Response.HttpContext.User = principalToken;
+        }
     }
     await next.Invoke();
 });

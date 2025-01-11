@@ -44,8 +44,6 @@ namespace OptiTask.Controllers
                 return Forbid("Try again to login!");
             }
 
-            HttpContext.User = principal;
-
             return Ok(new
             {
                 Message = "Logged In"
@@ -83,7 +81,12 @@ namespace OptiTask.Controllers
 
             _logger.LogInformation("User Created");
            
-            await _authService.AuthenticateUserAsync(userDTO.Mail, userDTO.Password, HttpContext);
+            var principal = await _authService.AuthenticateUserAsync(userDTO.Mail, userDTO.Password, HttpContext);
+
+            if (principal == null)
+            {
+                return Forbid("Try to Login");
+            }
 
             return Ok(new
             {

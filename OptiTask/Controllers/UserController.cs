@@ -21,7 +21,7 @@ namespace OptiTask.Controllers
         }
 
         // Kullanıcıları listeleme
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {

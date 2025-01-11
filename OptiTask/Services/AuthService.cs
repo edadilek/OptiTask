@@ -12,13 +12,11 @@ namespace OptiTask.Services
 {
     public class AuthService
     {
-        private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
         private readonly UserService _userService;
 
-        public AuthService(IConfiguration configuration, IUserRepository userRepository, UserService userService)
+        public AuthService(IUserRepository userRepository, UserService userService)
         {
-            _configuration = configuration;
             _userRepository = userRepository;
             _userService = userService;
         }
@@ -88,12 +86,9 @@ namespace OptiTask.Services
 
             var claims = new[]
             {
-                //new Claim(ClaimTypes.NameIdentifier, existedUser.UserId.ToString()),
-                //new Claim(ClaimTypes.Role, existedUser.Role),
-                //new Claim(ClaimTypes.Email, existedUser.Mail)
                 new Claim(ClaimTypes.NameIdentifier, existedUser.UserId.ToString()),
                 new Claim(ClaimTypes.Email, existedUser.Mail),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
+                new Claim(ClaimTypes.Role, existedUser.Role)
             };
 
             var identity = new ClaimsIdentity(claims);

@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Interface;
+using System.Threading;
 
 namespace OptiTask.Services
 {
@@ -6,18 +7,14 @@ namespace OptiTask.Services
     {
         private readonly ITaskAssignmentRepository _taskAssignmentRepository;
         private readonly ITasksRepository _taskRepository;
-        private readonly IWorkloadRepository _workloadRepository;
-        private readonly WorkloadService _workloadService;
 
         private readonly ILogger _logger;
 
-        public TaskScheduler(ITasksRepository taskRepository, ILogger logger, ITaskAssignmentRepository taskAssignmentRepository, IWorkloadRepository workloadRepository, WorkloadService workloadService)
+        public TaskScheduler(ITasksRepository taskRepository, ILogger logger, ITaskAssignmentRepository taskAssignmentRepository)
         {
             _taskAssignmentRepository = taskAssignmentRepository;
             _logger = logger;
             _taskRepository = taskRepository;
-            _workloadRepository = workloadRepository;
-            _workloadService = workloadService;
         }
 
 
@@ -25,48 +22,30 @@ namespace OptiTask.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await UpdateDelayedAssignments(stoppingToken);
-                await WorkloadFromDbToRedis(stoppingToken);
-            }
-        }
-
-        private async Task UpdateDelayedAssignments(CancellationToken cancellationToken)
-        {
-            try
-            {
-                var assignments = await _taskAssignmentRepository.GetAll();
-
-                foreach (var assignment in assignments)
+                try
                 {
-                    var task = await _taskRepository.GetById(assignment.TaskId);
+                    var assignments = await _taskAssignmentRepository.GetAll();
 
-                    if (task.EstimatedLoad <= (DateTime.UtcNow - assignment.AssignedAt).TotalMinutes && assignment.Status != "Delayed")
+                    foreach (var assignment in assignments)
                     {
-                        assignment.Status = "Delayed";
+                        var task = await _taskRepository.GetById(assignment.TaskId);
 
-                        await _taskAssignmentRepository.Update(assignment);
+                        if (task.EstimatedLoad <= (DateTime.UtcNow - assignment.AssignedAt).TotalMinutes && assignment.Status != "Delayed")
+                        {
+                            assignment.Status = "Delayed";
+
+                            await _taskAssignmentRepository.Update(assignment);
+                        }
                     }
+                    _logger.LogInformation("Assignment Delay Check");
+
+                    await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
                 }
-                _logger.LogInformation("Assignment Delay Check");
-
-                await Task.Delay(TimeSpan.FromMinutes(2), cancellationToken);
+                catch (Exception ex)
+                {
+                    _logger.LogError($"An Error Occured: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"An Error Occured: {ex.Message}");
-            }
-        }
-
-        private async Task WorkloadFromDbToRedis(CancellationToken cancellationToken)
-        {
-            var workloads = await _workloadRepository.GetAll();
-            foreach (var workload in workloads)
-            {
-                await _workloadService.IncreaseWorkloadAsync(workload.userId, workload.workload);
-            }
-            _logger.LogInformation("Workloads are loaded from Database to Redis!");
-
-            await Task.Delay(TimeSpan.FromMinutes(3), cancellationToken);
         }
     }
 }
