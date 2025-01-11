@@ -14,5 +14,7 @@ namespace DataAccessLayer.Entity
 
         public int userId { get; set; }
         public double workload {  get; set; }
+
+        public User user { get; set; } = null!;
     }
 }

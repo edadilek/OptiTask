@@ -3,6 +3,7 @@ using System;
 using DataAccessLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250111180725_Workload_Tables_Added")]
+    partial class Workload_Tables_Added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,24 +206,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entity.Workload", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("userId")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("workload")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id", "userId");
-
-                    b.HasIndex("userId");
-
-                    b.ToTable("Workloads", (string)null);
-                });
-
             modelBuilder.Entity("DataAccessLayer.Entity.ProjectTask", b =>
                 {
                     b.HasOne("DataAccessLayer.Entity.Project", "project")
@@ -295,17 +280,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("project");
 
                     b.Navigation("team");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entity.Workload", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entity.User", "user")
-                        .WithMany()
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("user");
                 });
 #pragma warning restore 612, 618
         }
