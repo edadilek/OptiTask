@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataAccessLayer.Interface;
+using Microsoft.AspNetCore.Mvc;
 using OptiTask.Services;
 
 namespace OptiTask.Controllers
@@ -7,16 +8,24 @@ namespace OptiTask.Controllers
     [Route("api/[controller]")]
     public class WorkloadController : ControllerBase
     {
-        public WorkloadController()
-        {
+        private readonly IWorkloadRepository workloadRepository;
 
+        public WorkloadController(IWorkloadRepository workload)
+        {
+            workloadRepository = workload;
         }
 
-        // Kullanıcı iş yüklerini hesaplama
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetWorkload(int userId)
         {
-            return Ok();
+            var workload = await workloadRepository.GetById(userId);
+
+            if (workload == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(workload);
         }
     }
 }

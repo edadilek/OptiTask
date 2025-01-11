@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250111180725_Workload_Tables_Added")]
-    partial class Workload_Tables_Added
+    [Migration("20250111223640_Workload_Tables")]
+    partial class Workload_Tables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -206,6 +206,27 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entity.Workload", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("workload")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Workloads", (string)null);
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entity.ProjectTask", b =>
                 {
                     b.HasOne("DataAccessLayer.Entity.Project", "project")
@@ -280,6 +301,17 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("project");
 
                     b.Navigation("team");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entity.Workload", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entity.User", "user")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("user");
                 });
 #pragma warning restore 612, 618
         }

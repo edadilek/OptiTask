@@ -15,12 +15,16 @@ namespace OptiTask.Controllers
         private readonly TaskService _taskService;
         private readonly ITasksRepository _taskRepository;
         private readonly ILogger<TaskController> _logger;
+        private readonly IUserRepository _userRepository;
+        private readonly ITaskAssignmentRepository _taskAssignmentRepository;
 
-        public TaskController(TaskService taskService, ITasksRepository taskRepository, ILogger<TaskController> logger)
+        public TaskController(TaskService taskService, ITasksRepository taskRepository, ILogger<TaskController> logger, IUserRepository userRepository, ITaskAssignmentRepository taskAssignmentRepository)
         {
             _taskService = taskService;
             _taskRepository = taskRepository;
             _logger = logger;
+            _userRepository = userRepository;
+            _taskAssignmentRepository = taskAssignmentRepository;
         }
 
         // CREATE
@@ -126,12 +130,12 @@ namespace OptiTask.Controllers
         }
 
         // Manuel atama
-        [HttpPost("{taskId}/assign/{userId}")]
-        public async Task<IActionResult> AssignTaskToUser(int taskId, int userId)
+        [HttpPost("{id}/assign/{userId}")]
+        public async Task<IActionResult> AssignTaskToUser(int id, int userId)
         {
             try
             {
-                var assignment = await _taskService.AssignTaskToUserAsync(taskId, userId);
+                var assignment = await _taskService.AssignTaskToUserAsync(id, userId);
                 return Ok(assignment);
             }
             catch (InvalidOperationException ex)
@@ -146,12 +150,12 @@ namespace OptiTask.Controllers
         }
 
         // Otomatik atama
-        [HttpPost("{taskId}/auto-assign/{teamId}")]
-        public async Task<IActionResult> AutoAssignTask(int taskId, int teamId)
+        [HttpPost("{id}/auto-assign/{teamId}")]
+        public async Task<IActionResult> AutoAssignTask(int id, int teamId)
         {
             try
             {
-                var assignment = await _taskService.AutoAssignTaskAsync(taskId, teamId);
+                var assignment = await _taskService.AutoAssignTaskAsync(id, teamId);
                 return Ok(assignment);
             }
             catch (InvalidOperationException ex)
@@ -164,84 +168,36 @@ namespace OptiTask.Controllers
                 return StatusCode(500, "An error occurred while auto-assigning the task");
             }
         }
+
+        [HttpPut("{id}/done/{userId}")]
+        public async Task<IActionResult> MarkDoneTask(int id, int userId)
+        {
+            var task = await _taskRepository.GetById(id);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userRepository.GetById(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var taskAssignment = await _taskAssignmentRepository.GetTaskAssignment(id, userId);
+
+            if (taskAssignment == null)
+            {
+                return NotFound();
+            }
+
+            taskAssignment.Status = "Done";
+
+            await _taskAssignmentRepository.Update(taskAssignment);
+
+            return Ok();
+        }
     }
 }
-
-
-
-//using Microsoft.AspNetCore.Mvc;
-//using DataAccessLayer.Entity;
-//using OptiTask.Services;
-//using DataAccessLayer;
-//using DataAccessLayer.Repository;
-//using OptiTask.DTOs;
-//using DataAccessLayer.Interface;
-
-//namespace OptiTask.Controllers
-//{
-//    [ApiController]
-//    [Route("api/[controller]")]
-//    public class TaskController : ControllerBase
-//    {
-//        private readonly TaskService _taskService;
-//        private readonly ITasksRepository _taskRepository;
-//        private readonly ILogger<TaskController> _logger;
-
-//        public TaskController(TaskService taskService, ITasksRepository taskRepository, ILogger<TaskController> logger)
-//        {
-//            _taskService = taskService;
-//            _taskRepository = taskRepository;
-//            _logger = logger;
-//        }
-
-//        [HttpPost]
-//        public async Task<IActionResult> CreateTask([FromBody] TasksDTO taskDTO)
-//        {
-//            try
-//            {
-//                var createdTask = await _taskService.CreateTaskAsync(taskDTO);
-//                return Ok(createdTask);
-//            }
-//            catch (InvalidOperationException ex)
-//            {
-//                return BadRequest(ex.Message);
-//            }
-//            catch (Exception ex)
-//            {
-//                _logger.LogError(ex, "Error creating task");
-//                return StatusCode(500, "An error occurred while creating the task");
-//            }
-//        }
-
-//        // Manuel atama
-//        [HttpPost("{taskId}/assign/{userId}")]
-//        public async Task<IActionResult> AssignTaskToUser(int taskId, int userId)
-//        {
-//            try
-//            {
-//                var assignment = await _taskService.AssignTaskToUserAsync(taskId, userId);
-//                return Ok(assignment);
-//            }
-//            catch (Exception ex)
-//            {
-//                return BadRequest(ex.Message);
-//            }
-
-//        }
-
-//        // Otomatik atama
-//        [HttpPost("{taskId}/auto-assign/{teamId}")]
-//        public async Task<IActionResult> AutoAssignTask(int taskId, int teamId)
-//        {
-//            try
-//            {
-//                var assignment = await _taskService.AutoAssignTaskAsync(taskId, teamId);
-//                return Ok(assignment);
-//            }
-//            catch (Exception ex)
-//            {
-//                return BadRequest(ex.Message);
-//            }
-//        }
-//    }
-//}

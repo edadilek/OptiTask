@@ -18,9 +18,10 @@ namespace DataAccessLayer.Repository
             _context = context;
         }
 
-        public new async Task<Workload> GetById(int id) // new anahtar kelimesi üst classtaki fonksiyonu gizler (override eder)
+        public async Task<Workload> GetByUserId(int userId)
         {
-            var workload = await _context.Set<Workload>().Include(w => w.user).FirstAsync(w => w.Id == id);
+            var workload = await _context.Set<Workload>().Where(w => w.UserId == userId).FirstOrDefaultAsync();
+
             return workload;
         }
     }

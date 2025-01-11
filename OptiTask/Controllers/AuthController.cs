@@ -15,15 +15,13 @@ namespace OptiTask.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
         private readonly UserService _userService;
         private readonly AuthService _authService;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IConfiguration configuration, IUserRepository userRepository, UserService userService, AuthService authService, ILogger<AuthController> logger)
+        public AuthController(IUserRepository userRepository, UserService userService, AuthService authService, ILogger<AuthController> logger)
         {
-            _configuration = configuration;
             _userRepository = userRepository;
             _userService = userService;
             _authService = authService;

@@ -31,10 +31,10 @@ namespace OptiTask.Controllers
             return Ok(teams);
         }
 
-        [HttpGet("{teamId}")]
-        public async Task<IActionResult> GetTeamById(int teamId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTeamById(int id)
         {
-            var team = await teamRepository.GetById(teamId);
+            var team = await teamRepository.GetById(id);
 
             if (team == null)
             {
@@ -57,10 +57,10 @@ namespace OptiTask.Controllers
             return Ok(team);
         }
 
-        [HttpDelete("{teamId}")]
-        public async Task<IActionResult> DeleteTeam(int teamId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTeam(int id)
         {
-            var team = await teamRepository.GetById(teamId);
+            var team = await teamRepository.GetById(id);
 
             if (team == null)
             {
@@ -72,10 +72,10 @@ namespace OptiTask.Controllers
             return Ok(team);
         }
 
-        [HttpPut("{teamId}")]
-        public async Task<IActionResult> UpdateTeam(int teamId, [FromBody] TeamDTO team)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTeam(int id, [FromBody] TeamDTO team)
         {
-            var existedTeam = await teamRepository.GetById(teamId);
+            var existedTeam = await teamRepository.GetById(id);
 
             if (existedTeam == null)
             {
@@ -97,25 +97,34 @@ namespace OptiTask.Controllers
         }
 
         // Takıma kullanıcı ekleme
-        [HttpPost("{teamId}/add-user")]
-        public async Task<IActionResult> AddUserToTeam(int teamId, [FromBody] int userId)
+        [HttpPost("{id}/add-user")]
+        public async Task<IActionResult> AddUserToTeam(int id, [FromBody] int userId)
         {
-            var team = await teamRepository.GetById(teamId);
             var user = await userRepository.GetById(userId);
+
+            var teamMemberExist = await teamMemberRepository.GetMemberShip(id, userId);
+
+            if( teamMemberExist != null)
+            {
+                return BadRequest("User already has a team!");
+            }
+
+
+            var team = await teamRepository.GetById(id);
 
             if (team == null || user == null) return NotFound();
 
-            var teamMember = new TeamMember { TeamId = teamId, UserId = userId };
+            var teamMember = new TeamMember { TeamId = id, UserId = userId };
 
             await teamMemberRepository.Create(teamMember);
             return Ok(teamMember);
         }
 
         // Takımdan kullanıcı çıkarma
-        [HttpPost("{teamId}/remove-user")]
-        public async Task<IActionResult> RemoveUserFromTeam(int teamId, [FromBody] int userId)
+        [HttpPost("{id}/remove-user")]
+        public async Task<IActionResult> RemoveUserFromTeam(int id, [FromBody] int userId)
         {
-            var teamMember = await teamMemberRepository.GetMemberShip(teamId, userId);
+            var teamMember = await teamMemberRepository.GetMemberShip(id, userId);
             if (teamMember == null) return NotFound();
 
             await teamMemberRepository.Delete(teamMember);

@@ -206,17 +206,20 @@ namespace DataAccessLayer.Migrations
             modelBuilder.Entity("DataAccessLayer.Entity.Workload", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<int>("userId")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.Property<double>("workload")
                         .HasColumnType("double precision");
 
-                    b.HasKey("Id", "userId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("userId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Workloads", (string)null);
                 });
@@ -301,7 +304,7 @@ namespace DataAccessLayer.Migrations
                 {
                     b.HasOne("DataAccessLayer.Entity.User", "user")
                         .WithMany()
-                        .HasForeignKey("userId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -9,6 +9,6 @@ namespace DataAccessLayer.Interface
 {
     public interface IWorkloadRepository : IGenericRepository<Workload>
     {
-
+        Task<Workload> GetByUserId(int userId);
     }
 }

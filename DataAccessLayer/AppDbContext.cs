@@ -32,7 +32,7 @@ namespace DataAccessLayer
             modelBuilder.Entity<TaskAssignment>().ToTable("TaskAssignments").HasKey(ta => new { ta.TaskId, ta.UserId });
             modelBuilder.Entity<TeamProject>().ToTable("TeamProjects").HasKey(tp => new { tp.projectId, tp.teamId });
             modelBuilder.Entity<ProjectTask>().ToTable("ProjectTasks").HasKey(pt => new { pt.projectId, pt.taskId });
-            modelBuilder.Entity<Workload>().ToTable("Workloads").HasKey(w => new { w.Id, w.userId });
+            modelBuilder.Entity<Workload>().ToTable("Workloads").HasKey(w => new { w.Id });
 
             base.OnModelCreating(modelBuilder);
         }

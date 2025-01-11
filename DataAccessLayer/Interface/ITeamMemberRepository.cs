@@ -11,5 +11,6 @@ namespace DataAccessLayer.Interface
     {
         Task<List<TeamMember>> GetTeamMembers(int teamId);
         Task<TeamMember> GetMemberShip(int teamId, int userId);
+        Task<TeamMember> GetTeamByUserId(int userId);
     }
 }

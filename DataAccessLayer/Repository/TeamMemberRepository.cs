@@ -33,5 +33,12 @@ namespace DataAccessLayer.Repository
                 .FirstOrDefaultAsync(tm => tm.TeamId == teamId && tm.UserId == userId);
             return membership;
         }
+
+        public async Task<TeamMember> GetTeamByUserId(int userId)
+        {
+            var membership = await _appDbContext.TeamMembers.FirstOrDefaultAsync(tm => tm.UserId == userId);
+
+            return membership;
+        }
     }
 }

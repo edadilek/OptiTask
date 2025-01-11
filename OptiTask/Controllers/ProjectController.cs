@@ -5,6 +5,7 @@ using DataAccessLayer;
 using DataAccessLayer.Repository;
 using DataAccessLayer.Interface;
 using OptiTask.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OptiTask.Controllers
 {
@@ -15,15 +16,20 @@ namespace OptiTask.Controllers
         private readonly IProjectRepository projectRepository;
         private readonly ITeamRepository teamRepository;
         private readonly ITeamProjectRepository teamProjectRepository;
+        private readonly ITasksRepository tasksRepository;
+        private readonly IProjectTaskRepository projectTaskRepository;
 
-        public ProjectController(IProjectRepository projectRepository, ITeamRepository teamRepository, ITeamProjectRepository teamProjectRepository)
+        public ProjectController(IProjectRepository projectRepository, ITeamRepository teamRepository, ITeamProjectRepository teamProjectRepository, ITasksRepository tasksRepository, IProjectTaskRepository projectTaskRepository)
         {
             this.projectRepository = projectRepository;
             this.teamRepository = teamRepository;
             this.teamProjectRepository = teamProjectRepository;
+            this.tasksRepository = tasksRepository;
+            this.projectTaskRepository = projectTaskRepository;
         }
 
         // Projeleri listeleme
+        [Authorize(Roles = "admin, project-manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllProjects()
         {
@@ -31,6 +37,7 @@ namespace OptiTask.Controllers
             return Ok(projects);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpGet("{projectId}")]
         public async Task<IActionResult> GetProjectById(int projectId)
         {
@@ -62,10 +69,10 @@ namespace OptiTask.Controllers
         }
 
         // Projeyi takıma atama
-        [HttpPost("{projectId}/assign-team")]
-        public async Task<IActionResult> AssignTeamToProject(int projectId, [FromBody] int teamId)
+        [HttpPost("{id}/assign-team")]
+        public async Task<IActionResult> AssignTeamToProject(int id, [FromBody] int teamId)
         {
-            var project = await projectRepository.GetById(projectId);
+            var project = await projectRepository.GetById(id);
             var team = await teamRepository.GetById(teamId);
 
             if (project == null || team == null) return NotFound();
@@ -74,31 +81,44 @@ namespace OptiTask.Controllers
             {
                 project = project,
                 team = team,
-                projectId = projectId,
+                projectId = id,
                 teamId = teamId
             };
+
+            project.Status = "Assigned";
+
+            await projectRepository.Update(project);
 
             await teamProjectRepository.Create(assignment);
             return Ok(assignment);
         }
 
-        [HttpDelete("{projectId}/assign-team")]
-        public async Task<IActionResult> ResignTeamFromProject(int projectId, [FromBody] int teamId)
+        [HttpDelete("{id}/assign-team")]
+        public async Task<IActionResult> ResignTeamFromProject(int id, [FromBody] int teamId)
         {
-            var projectTeam = await teamProjectRepository.GetTeamProjectAsync(teamId, projectId);
+            var projectTeam = await teamProjectRepository.GetTeamProjectAsync(teamId, id);
+            var project = await projectRepository.GetById(id);
 
             if(projectTeam == null) return NotFound();
 
-            
-            await teamProjectRepository.Delete(projectTeam);
+            if (project.Status == "Assigned")
+            {
+                await teamProjectRepository.Delete(projectTeam);
+                project.Status = "Idle";
+            }
+
+            if (project.Status == "Done")
+            {
+                await teamProjectRepository.Delete(projectTeam);
+            }
 
             return Ok(projectTeam);
         }
 
-        [HttpDelete("{projectId}")]
-        public async Task<IActionResult> DeleteProject(int projectId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProject(int id)
         {
-            var project = await projectRepository.GetById(projectId);
+            var project = await projectRepository.GetById(id);
 
             if (project == null)
             {
@@ -110,10 +130,10 @@ namespace OptiTask.Controllers
             return Ok($"Proje Silindi: \n{project}");
         }
 
-        [HttpPut("{projectId}")]
-        public async Task<IActionResult> UpdateProject(int projectId, [FromBody] ProjectDTO projectDTO)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProject(int id, [FromBody] ProjectDTO projectDTO)
         {
-            var project = await projectRepository.GetById(projectId);
+            var project = await projectRepository.GetById(id);
 
             if (projectDTO.Status == null || projectDTO.Name == null || projectDTO.Description == null)
             {
@@ -128,6 +148,60 @@ namespace OptiTask.Controllers
 
             return Ok(project);
         }
+
+        [HttpPost("{id}/Task")]
+        public async Task<IActionResult> AddTask(int id, [FromBody] int taskId)
+        {
+            var project = await projectRepository.GetById(id);
+
+            if (project == null)
+            {
+                return NotFound("Project not found");
+            }
+
+            var task = await tasksRepository.GetById(taskId);
+
+            if (task == null)
+            {
+                return NotFound("Task not found");
+            }
+
+            var projectTask = new ProjectTask()
+            {
+                projectId = project.ProjectId,
+                taskId = task.TaskId
+            };
+
+            var pt = await projectTaskRepository.Create(projectTask);
+
+            return Ok(pt);
+        }
+
+        [HttpDelete("{id}/Task")]
+        public async Task<IActionResult> RemoveTask(int id, [FromBody] int taskId)
+        {
+            var project = await projectRepository.GetById(id);
+
+            if (project == null)
+            {
+                return NotFound("Project not found");
+            }
+
+            var task = await tasksRepository.GetById(taskId);
+
+            if (task == null)
+            {
+                return NotFound("Task not found");
+            }
+
+            var projectTask = await projectTaskRepository.GetProjectTask(id, taskId);
+
+            await projectTaskRepository.Delete(projectTask);
+
+            return Ok(projectTask);
+
+        }
+        
     }
 }
 

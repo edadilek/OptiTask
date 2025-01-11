@@ -76,18 +76,39 @@ namespace OptiTask.Services
             var workload = CalculateTaskWorkload(task);
             await _workloadService.IncreaseWorkloadAsync(userId, workload);
 
-            var workloadDb = new Workload()
+            var workloadExist = await _workloadRepository.GetByUserId(userId);
+
+            if (workloadExist == null)
             {
-                userId = userId,
-                workload = workload
-            };
-            var dbRes = await _workloadRepository.Create(workloadDb);
-            
-            if (dbRes == null)
-            {
-                _logger.LogError("Workload registration failed!");
-                throw new Exception("Workload registration failed");
+
+                var workloadDb = new Workload()
+                {
+                    UserId = userId,
+                    workload = workload
+                };
+
+                var dbRes = await _workloadRepository.Create(workloadDb);
+
+                if (dbRes == null)
+                {
+                    _logger.LogError("Workload registration failed!");
+                    throw new Exception("Workload registration failed");
+                }
+
+
+                return await _taskAssignmentRepository.Create(new TaskAssignment
+                {
+                    TaskId = taskId,
+                    UserId = userId,
+                    AssignedAt = DateTime.UtcNow,
+                    Status = "In Processing"
+                });
             }
+
+            workloadExist.workload = workload;
+
+            await _workloadRepository.Update(workloadExist);
+            
 
             var assignment = new TaskAssignment
             {

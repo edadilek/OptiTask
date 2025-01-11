@@ -104,7 +104,15 @@ builder.Services.AddCors(options =>
 // Authentication and Authorization
 var jwtKey = builder.Configuration["Jwt:Key"];
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("TeamLeaderPolicy", policy =>
+    {
+        policy.RequireRole("admin", "team-leader");
+        policy.RequireAuthenticatedUser();
+        // policy.Requirements.Add();
+    });
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer();
@@ -157,7 +165,6 @@ app.Use(async (context, next) =>
     }
     await next.Invoke();
 });
-
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
