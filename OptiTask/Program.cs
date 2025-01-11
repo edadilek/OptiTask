@@ -43,8 +43,10 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<WorkloadService>();
 builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<RedisCacheService>();
 
 builder.Services.AddHostedService<TasksScheduler>();
+builder.Services.AddHostedService<CacheInitializationHostedService>();
 
 
 // **2. Redis Baðlantýsýný Yapýlandýrýn**
