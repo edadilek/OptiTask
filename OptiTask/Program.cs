@@ -44,6 +44,8 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<WorkloadService>();
 builder.Services.AddScoped<TaskService>();
 
+builder.Services.AddHostedService<TasksScheduler>();
+
 
 // **2. Redis Baðlantýsýný Yapýlandýrýn**
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
