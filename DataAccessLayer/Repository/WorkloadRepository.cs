@@ -25,5 +25,10 @@ namespace DataAccessLayer.Repository
 
             return workload;
         }
+
+        public async Task<List<Workload>> GetAll()
+        {
+            var workloads = await _context.Set<Workload>().ToListAsync();
+            return workloads;        }
     }
 }

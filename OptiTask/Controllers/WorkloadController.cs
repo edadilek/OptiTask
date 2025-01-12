@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Interface;
+using DataAccessLayer.Repository;
 using Microsoft.AspNetCore.Mvc;
 using OptiTask.Services;
 
@@ -21,7 +22,7 @@ namespace OptiTask.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetWorkload(int userId)
         {
-            var workload = await workloadRepository.GetById(userId);
+            var workload = await workloadRepository.GetByUserId(userId);
 
             if (workload == null)
             {
@@ -29,6 +30,19 @@ namespace OptiTask.Controllers
             }
 
             return Ok(workload);
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllWorkloads()
+        {
+            var workloads = await workloadRepository.GetAll();
+
+            if (workloads == null)
+            {
+                return NotFound("No workloads found.");
+            }
+
+            return Ok(workloads);
         }
     }
 }
