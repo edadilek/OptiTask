@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repository
 {
+    //interface implementasyonlarını yapıyoruz
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
         private readonly AppDbContext _appDbContext;

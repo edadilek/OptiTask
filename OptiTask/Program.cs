@@ -19,6 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddNpgsql<AppDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"), null, optionsAction =>
 {
+    //PostgreSQL kullanarak bir AppDbContext yapýlandýrýyoruz veritabaný baðlantýsýný DefaultConnection ile yapýyoruz
     optionsAction.UseNpgsql(builder =>
     {
         builder.MigrationsAssembly("DataAccessLayer");
@@ -49,7 +50,7 @@ builder.Services.AddHostedService<TasksScheduler>();
 builder.Services.AddHostedService<CacheInitializationHostedService>();
 
 
-// **2. Redis Baðlantýsýný Yapýlandýrýn**
+//Redis Baðlantýsýný Yapýyoruz
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
@@ -59,7 +60,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         throw new InvalidOperationException("Redis connection string is not configured");
 
     var options = ConfigurationOptions.Parse(redisConnection);
-    options.AbortOnConnectFail = false; // Baðlantý hatalarýna karþý daha toleranslý ol
+    options.AbortOnConnectFail = false; // Baðlantý hatalarýna karþý 
 
     return ConnectionMultiplexer.Connect(options);
 });
@@ -123,7 +124,7 @@ var app = builder.Build();
 
 var logger = app.Logger;
 
-// **5. HTTP Request Pipeline'ý Yapýlandýrýn**
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

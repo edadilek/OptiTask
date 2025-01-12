@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer
 {
+    //Migration işlemleri için gerekli bağlantı bilgilerini oluşturuyoruz
+    //DbContext oluşturuyoruz
     public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         public AppDbContext CreateDbContext(string[] args)

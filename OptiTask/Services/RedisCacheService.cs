@@ -5,6 +5,7 @@ using System.Text.Json;
 
 namespace OptiTask.Services
 {
+    //Redis önbellek işlemlerini yönetmek için servis
     public class RedisCacheService
     {
         private readonly IDatabase _redisDb;

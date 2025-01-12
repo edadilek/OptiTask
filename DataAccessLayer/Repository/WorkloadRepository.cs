@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Repository
 {
+    //interface implementasyonlarını yapıyoruz
     public class WorkloadRepository : GenericRepository<Workload>, IWorkloadRepository
     {
         private readonly AppDbContext _context;

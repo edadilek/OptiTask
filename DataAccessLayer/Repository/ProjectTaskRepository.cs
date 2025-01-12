@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Repository
 {
+    //interface implementasyonlarını yapıyoruz
     public class ProjectTaskRepository : GenericRepository<ProjectTask>, IProjectTaskRepository
     {
         private readonly AppDbContext _context;

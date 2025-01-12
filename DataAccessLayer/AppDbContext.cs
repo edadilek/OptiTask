@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace DataAccessLayer
 {
+    //Veritabanı tablolarını DbSet'ler olarak tanımlıyoruz
+    //Entity ilişkilerini ve konfigürasyonlarını belirliyoruz
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions options) : base(options) 

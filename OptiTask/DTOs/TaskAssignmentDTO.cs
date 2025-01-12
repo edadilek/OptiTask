@@ -1,5 +1,7 @@
 ﻿namespace OptiTask.DTOs
 {
+    //API ile client arasında veri taşıma nesneleri oluşturuyoruz
+    //Entity'lerin sadece gerekli alanlarını içerir
     public class TaskAssignmentDTO
     {
         public int TaskId { get; set; }

@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace OptiTask.Controllers
 {
+    //user için endpoint işlemleri
+
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -29,6 +31,7 @@ namespace OptiTask.Controllers
             return Ok(users);
         }
 
+        //belli idye sahip kullanıcıyı getirme
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(int userId)
         {

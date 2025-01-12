@@ -4,6 +4,9 @@ using System.Threading;
 
 namespace OptiTask.Services
 {
+    //taskın zamanı geçip geçmediğinin kontrolü için servis 
+    //taskin atama tarihine bakıp (taskassignments tablosundan - assigned_at) bu zamana
+    //taskın estimated time ekleyip şu anki zamanla kıyaslıyoruz
     public class TasksScheduler : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;

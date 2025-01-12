@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Interface
 {
+    //generic altyapıyı kullanıp kod tekrarını engelliyoruz CRUD işlemleri için
     public interface ITeamProjectRepository : IGenericRepository<TeamProject>
     {
         Task<TeamProject> GetTeamProjectAsync(int teamId, int projectId);

@@ -4,6 +4,8 @@ using OptiTask.Services;
 
 namespace OptiTask.Controllers
 {
+    //workload için endpoint işlemleri
+
     [ApiController]
     [Route("api/[controller]")]
     public class WorkloadController : ControllerBase
@@ -15,6 +17,7 @@ namespace OptiTask.Controllers
             workloadRepository = workload;
         }
 
+        //kullanıcının workloadını getirme
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetWorkload(int userId)
         {

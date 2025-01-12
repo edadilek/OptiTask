@@ -5,6 +5,7 @@ using OptiTask.Middlewares;
 
 namespace OptiTask.Services
 {
+    //task işlemleri için servis
     public class TaskService
     {
         private readonly IUserRepository _userRepository;

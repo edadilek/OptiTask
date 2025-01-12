@@ -11,6 +11,8 @@ using System.Text;
 
 namespace OptiTask.Controllers
 {
+    //Auth. endpoint işlemleri (login signup)
+
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -31,6 +33,7 @@ namespace OptiTask.Controllers
         [HttpPost("/login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO creds)
         {
+            //email veya password boş olmamalı
             if (string.IsNullOrEmpty(creds.Email) || string.IsNullOrEmpty(creds.Password)) {
                 return BadRequest("Provide an appropiate body!");
             }
@@ -51,18 +54,20 @@ namespace OptiTask.Controllers
         [HttpPost("/signup")]
         public async Task<IActionResult> Signup([FromBody] UserDTO userDTO)
         {
+            //herhangi bir kısım boş olmamalı
             if(string.IsNullOrEmpty(userDTO.Name) || string.IsNullOrEmpty(userDTO.Surname) || string.IsNullOrEmpty(userDTO.Mail) || string.IsNullOrEmpty(userDTO.Password))
             {
                 return BadRequest("Provide an appropiate body!");
             }
 
+            //maile göre kullanıcı var mı diye kontrol ediyoruz
             var isExists = await _userRepository.CheckIfUserExists(userDTO.Mail);
             if (isExists)
             {
                 return BadRequest("User exists!");
             }
 
-
+            //yeni user oluşturuyoruz
             var newUser = new User()
             {
                 Name = userDTO.Name,

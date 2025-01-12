@@ -1,5 +1,6 @@
 ﻿namespace DataAccessLayer.Interface
 {
+    //generic repository oluşturuyoruz diğer repositoryler de buradakilere sahip olmuş olacak 
     public interface IGenericRepository<T> where T : class
     {
         Task<T> Create (T entity);

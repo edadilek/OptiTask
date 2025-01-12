@@ -3,6 +3,7 @@ using DataAccessLayer.Interface;
 
 namespace DataAccessLayer.Repository
 {
+    //interface implementasyonlarını yapıyoruz
     public class TasksRepository : GenericRepository<Tasks>, ITasksRepository
     {
         private readonly AppDbContext _appDbContext;

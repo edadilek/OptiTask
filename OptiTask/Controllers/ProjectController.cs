@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace OptiTask.Controllers
 {
+    //project için endpoint işlemleri
+
     [ApiController]
     [Route("api/[controller]")]
     public class ProjectController : ControllerBase
@@ -29,6 +31,7 @@ namespace OptiTask.Controllers
         }
 
         // Projeleri listeleme
+        //bu işlemi admin ve project manager yapabilir
         [Authorize(Roles = "admin, project-manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllProjects()
@@ -93,6 +96,7 @@ namespace OptiTask.Controllers
             return Ok(assignment);
         }
 
+        //Teamden proje atamasını kaldırma
         [HttpDelete("{id}/assign-team")]
         public async Task<IActionResult> ResignTeamFromProject(int id, [FromBody] int teamId)
         {
@@ -115,6 +119,7 @@ namespace OptiTask.Controllers
             return Ok(projectTeam);
         }
 
+        //projeyi silme
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {
@@ -130,6 +135,7 @@ namespace OptiTask.Controllers
             return Ok($"Proje Silindi: \n{project}");
         }
 
+        //projeyi güncelleme
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProject(int id, [FromBody] ProjectDTO projectDTO)
         {
@@ -149,6 +155,7 @@ namespace OptiTask.Controllers
             return Ok(project);
         }
 
+        //projeye task ekleme
         [HttpPost("{id}/Task")]
         public async Task<IActionResult> AddTask(int id, [FromBody] int taskId)
         {
@@ -177,6 +184,7 @@ namespace OptiTask.Controllers
             return Ok(pt);
         }
 
+        //projeden task çıkartma
         [HttpDelete("{id}/Task")]
         public async Task<IActionResult> RemoveTask(int id, [FromBody] int taskId)
         {

@@ -21,6 +21,7 @@ namespace OptiTask.Services
             _userService = userService;
         }
 
+        //Token oluşturuyoruz
         public string GenerateToken (ClaimsIdentity claimIdentity)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -45,6 +46,7 @@ namespace OptiTask.Services
             return tokenString;
         }
 
+        //Token doğrulaması
         public bool ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -67,6 +69,7 @@ namespace OptiTask.Services
             return true;
         }
 
+
         public async Task<ClaimsPrincipal> AuthenticateUserAsync(string username, string password, HttpContext httpContext)
         {
             var existedUser = await _userRepository.GetByEmail(username);
@@ -76,7 +79,7 @@ namespace OptiTask.Services
                 return null;
             }
 
-
+            //şifre kontrolü
             bool verifyPassword = _userService.VerifyUserPassword(existedUser, password);
 
             if (!verifyPassword)

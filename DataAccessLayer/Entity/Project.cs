@@ -4,6 +4,7 @@ namespace DataAccessLayer.Entity
 {
     public class Project
     {
+        
         [Key]
         public int ProjectId { get; set; }
 

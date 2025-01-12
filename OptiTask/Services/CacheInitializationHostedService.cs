@@ -1,5 +1,7 @@
 ﻿namespace OptiTask.Services
 {
+    //postgredeki verileri redise atıp cache gibi kullanmak için 
+    //uygulama başlatıldığında Redis önbelleğini (cache) doldurmak için kullanılan Hosted Service
     public class CacheInitializationHostedService : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace OptiTask.Middlewares
 {
+    //hata yakalamak için middleware katmanı ekledik
     public class NotFoundException : Exception
     {
         public NotFoundException(string message) : base(message)

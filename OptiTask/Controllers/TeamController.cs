@@ -8,6 +8,8 @@ using DataAccessLayer.Interface;
 
 namespace OptiTask.Controllers
 {
+    //team için endpoint işlemleri
+
     [ApiController]
     [Route("api/[controller]")]
     public class TeamController : ControllerBase
@@ -23,7 +25,7 @@ namespace OptiTask.Controllers
             this.teamMemberRepository = teamMemberRepository;
         }
 
-        // Takımları listeleme
+        //Takımları listeleme
         [HttpGet]
         public async Task<IActionResult> GetAllTeams()
         {
@@ -31,6 +33,7 @@ namespace OptiTask.Controllers
             return Ok(teams);
         }
 
+        //belli idye sahip takımı getirme
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTeamById(int id)
         {
@@ -44,7 +47,7 @@ namespace OptiTask.Controllers
             return Ok(team);
         }
 
-        // Yeni takım oluşturma
+        //Yeni takım oluşturma
         [HttpPost]
         public async Task<IActionResult> CreateTeam([FromBody] TeamDTO team)
         {
@@ -57,6 +60,7 @@ namespace OptiTask.Controllers
             return Ok(team);
         }
 
+        //takımı silme
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTeam(int id)
         {
@@ -72,6 +76,7 @@ namespace OptiTask.Controllers
             return Ok(team);
         }
 
+        //takımı güncelle
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTeam(int id, [FromBody] TeamDTO team)
         {

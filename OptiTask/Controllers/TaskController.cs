@@ -8,6 +8,8 @@ using DataAccessLayer.Interface;
 
 namespace OptiTask.Controllers
 {
+    //task için endpoint işlemleri
+
     [ApiController]
     [Route("api/[controller]")]
     public class TaskController : ControllerBase
@@ -27,7 +29,7 @@ namespace OptiTask.Controllers
             _taskAssignmentRepository = taskAssignmentRepository;
         }
 
-        // CREATE
+        //task oluşturma
         [HttpPost]
         public async Task<IActionResult> CreateTask([FromBody] TasksDTO taskDTO)
         {
@@ -47,7 +49,7 @@ namespace OptiTask.Controllers
             }
         }
 
-        // READ (All)
+        //tüm taskları listeleme
         [HttpGet]
         public async Task<IActionResult> GetAllTasks()
         {
@@ -63,7 +65,7 @@ namespace OptiTask.Controllers
             }
         }
 
-        // READ (By Id)
+        //belli iddeki taskı getirme
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTaskById(int id)
         {
@@ -82,7 +84,7 @@ namespace OptiTask.Controllers
             }
         }
 
-        // UPDATE
+        //taskı update et
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTask(int id, [FromBody] TasksDTO taskDTO)
         {
@@ -109,7 +111,7 @@ namespace OptiTask.Controllers
             }
         }
 
-        // DELETE
+        //taskı sil
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
@@ -129,7 +131,7 @@ namespace OptiTask.Controllers
             }
         }
 
-        // Manuel atama
+        //Manuel atama
         [HttpPost("{id}/assign/{userId}")]
         public async Task<IActionResult> AssignTaskToUser(int id, int userId)
         {
@@ -149,7 +151,7 @@ namespace OptiTask.Controllers
             }
         }
 
-        // Otomatik atama
+        //Otomatik atama
         [HttpPost("{id}/auto-assign/{teamId}")]
         public async Task<IActionResult> AutoAssignTask(int id, int teamId)
         {
@@ -169,6 +171,7 @@ namespace OptiTask.Controllers
             }
         }
 
+        //taskı done olarak işaretleme
         [HttpPut("{id}/done/{userId}")]
         public async Task<IActionResult> MarkDoneTask(int id, int userId)
         {

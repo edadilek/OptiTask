@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repository
 {
+    //interface implementasyonlarını yapıyoruz
     public class TeamProjectRepository : GenericRepository<TeamProject>, ITeamProjectRepository
     {
         private readonly AppDbContext _context;
